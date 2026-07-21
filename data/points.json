@@ -1,0 +1,736 @@
+[
+  {
+    "id": "P01",
+    "name": "候選點 01",
+    "status": "pending",
+    "tier": "",
+    "lat": 22.658928,
+    "lng": 120.364097,
+    "visitDate": "2026/07/19",
+    "photos": [
+      {
+        "file": "IMG_4505.jpg",
+        "keep": true
+      }
+    ],
+    "contact": "",
+    "phone": "",
+    "rent": "",
+    "deposit": "",
+    "size": "",
+    "material": "",
+    "lighting": "",
+    "direction": "",
+    "visibility": "",
+    "competitor": "",
+    "notes": ""
+  },
+  {
+    "id": "P02",
+    "name": "候選點 02",
+    "status": "pending",
+    "tier": "",
+    "lat": 22.64975,
+    "lng": 120.391769,
+    "visitDate": "2026/07/19",
+    "photos": [
+      {
+        "file": "IMG_4506.jpg",
+        "keep": true
+      }
+    ],
+    "contact": "",
+    "phone": "",
+    "rent": "",
+    "deposit": "",
+    "size": "",
+    "material": "",
+    "lighting": "",
+    "direction": "",
+    "visibility": "",
+    "competitor": "",
+    "notes": ""
+  },
+  {
+    "id": "P03",
+    "name": "候選點 03",
+    "status": "pending",
+    "tier": "",
+    "lat": 22.639636,
+    "lng": 120.401306,
+    "visitDate": "2026/07/19",
+    "photos": [
+      {
+        "file": "IMG_4507.jpg",
+        "keep": true
+      }
+    ],
+    "contact": "",
+    "phone": "",
+    "rent": "",
+    "deposit": "",
+    "size": "",
+    "material": "",
+    "lighting": "",
+    "direction": "",
+    "visibility": "",
+    "competitor": "",
+    "notes": ""
+  },
+  {
+    "id": "P04",
+    "name": "候選點 04",
+    "status": "pending",
+    "tier": "",
+    "lat": 22.62609,
+    "lng": 120.357485,
+    "visitDate": "2026/07/19",
+    "photos": [
+      {
+        "file": "IMG_4488.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4489.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4490.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4491.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4492.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4517.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4518.jpg",
+        "keep": true
+      }
+    ],
+    "contact": "",
+    "phone": "",
+    "rent": "",
+    "deposit": "",
+    "size": "",
+    "material": "",
+    "lighting": "",
+    "direction": "",
+    "visibility": "",
+    "competitor": "",
+    "notes": ""
+  },
+  {
+    "id": "P05",
+    "name": "候選點 05",
+    "status": "pending",
+    "tier": "",
+    "lat": 22.625991,
+    "lng": 120.353702,
+    "visitDate": "2026/07/19",
+    "photos": [
+      {
+        "file": "IMG_4493.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4494.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4495.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4496.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4497.jpg",
+        "keep": true
+      }
+    ],
+    "contact": "",
+    "phone": "",
+    "rent": "",
+    "deposit": "",
+    "size": "",
+    "material": "",
+    "lighting": "",
+    "direction": "",
+    "visibility": "",
+    "competitor": "",
+    "notes": ""
+  },
+  {
+    "id": "P06",
+    "name": "候選點 06",
+    "status": "pending",
+    "tier": "",
+    "lat": 22.62595,
+    "lng": 120.359672,
+    "visitDate": "2026/07/19",
+    "photos": [
+      {
+        "file": "IMG_4487.jpg",
+        "keep": true
+      }
+    ],
+    "contact": "",
+    "phone": "",
+    "rent": "",
+    "deposit": "",
+    "size": "",
+    "material": "",
+    "lighting": "",
+    "direction": "",
+    "visibility": "",
+    "competitor": "",
+    "notes": ""
+  },
+  {
+    "id": "P07",
+    "name": "候選點 07",
+    "status": "pending",
+    "tier": "",
+    "lat": 22.625575,
+    "lng": 120.349285,
+    "visitDate": "2026/07/19",
+    "photos": [
+      {
+        "file": "IMG_4498.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4499.jpg",
+        "keep": true
+      }
+    ],
+    "contact": "",
+    "phone": "",
+    "rent": "",
+    "deposit": "",
+    "size": "",
+    "material": "",
+    "lighting": "",
+    "direction": "",
+    "visibility": "",
+    "competitor": "",
+    "notes": ""
+  },
+  {
+    "id": "P08",
+    "name": "候選點 08",
+    "status": "pending",
+    "tier": "",
+    "lat": 22.625447,
+    "lng": 120.362053,
+    "visitDate": "2026/07/19",
+    "photos": [
+      {
+        "file": "IMG_4485.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4486.jpg",
+        "keep": true
+      }
+    ],
+    "contact": "",
+    "phone": "",
+    "rent": "",
+    "deposit": "",
+    "size": "",
+    "material": "",
+    "lighting": "",
+    "direction": "",
+    "visibility": "",
+    "competitor": "",
+    "notes": ""
+  },
+  {
+    "id": "P09",
+    "name": "候選點 09",
+    "status": "pending",
+    "tier": "",
+    "lat": 22.624547,
+    "lng": 120.365019,
+    "visitDate": "2026/07/19",
+    "photos": [
+      {
+        "file": "IMG_4480.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4481.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4482.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4483.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4484.jpg",
+        "keep": true
+      }
+    ],
+    "contact": "",
+    "phone": "",
+    "rent": "",
+    "deposit": "",
+    "size": "",
+    "material": "",
+    "lighting": "",
+    "direction": "",
+    "visibility": "",
+    "competitor": "",
+    "notes": ""
+  },
+  {
+    "id": "P10",
+    "name": "候選點 10",
+    "status": "pending",
+    "tier": "",
+    "lat": 22.622922,
+    "lng": 120.368088,
+    "visitDate": "2026/07/17",
+    "photos": [
+      {
+        "file": "IMG_4433.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4478.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4479.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4520.jpg",
+        "keep": true
+      }
+    ],
+    "contact": "",
+    "phone": "",
+    "rent": "",
+    "deposit": "",
+    "size": "",
+    "material": "",
+    "lighting": "",
+    "direction": "",
+    "visibility": "",
+    "competitor": "",
+    "notes": ""
+  },
+  {
+    "id": "P11",
+    "name": "候選點 11",
+    "status": "pending",
+    "tier": "",
+    "lat": 22.622175,
+    "lng": 120.371278,
+    "visitDate": "2026/07/21",
+    "photos": [
+      {
+        "file": "IMG_4521.jpg",
+        "keep": true
+      }
+    ],
+    "contact": "",
+    "phone": "",
+    "rent": "",
+    "deposit": "",
+    "size": "",
+    "material": "",
+    "lighting": "",
+    "direction": "",
+    "visibility": "",
+    "competitor": "",
+    "notes": ""
+  },
+  {
+    "id": "P12",
+    "name": "候選點 12",
+    "status": "pending",
+    "tier": "",
+    "lat": 22.622113,
+    "lng": 120.36971,
+    "visitDate": "2026/07/19",
+    "photos": [
+      {
+        "file": "IMG_4476.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4477.jpg",
+        "keep": true
+      }
+    ],
+    "contact": "",
+    "phone": "",
+    "rent": "",
+    "deposit": "",
+    "size": "",
+    "material": "",
+    "lighting": "",
+    "direction": "",
+    "visibility": "",
+    "competitor": "",
+    "notes": ""
+  },
+  {
+    "id": "P13",
+    "name": "候選點 13",
+    "status": "pending",
+    "tier": "",
+    "lat": 22.612414,
+    "lng": 120.391106,
+    "visitDate": "2026/07/18",
+    "photos": [
+      {
+        "file": "IMG_4436.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4437.jpg",
+        "keep": true
+      }
+    ],
+    "contact": "",
+    "phone": "",
+    "rent": "",
+    "deposit": "",
+    "size": "",
+    "material": "",
+    "lighting": "",
+    "direction": "",
+    "visibility": "",
+    "competitor": "",
+    "notes": ""
+  },
+  {
+    "id": "P14",
+    "name": "候選點 14",
+    "status": "pending",
+    "tier": "",
+    "lat": 22.608878,
+    "lng": 120.394447,
+    "visitDate": "2026/07/18",
+    "photos": [
+      {
+        "file": "IMG_4450.jpg",
+        "keep": true
+      }
+    ],
+    "contact": "",
+    "phone": "",
+    "rent": "",
+    "deposit": "",
+    "size": "",
+    "material": "",
+    "lighting": "",
+    "direction": "",
+    "visibility": "",
+    "competitor": "",
+    "notes": ""
+  },
+  {
+    "id": "P15",
+    "name": "候選點 15",
+    "status": "pending",
+    "tier": "",
+    "lat": 22.607584,
+    "lng": 120.395443,
+    "visitDate": "2026/07/18",
+    "photos": [
+      {
+        "file": "IMG_4444.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4445.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4449.jpg",
+        "keep": true
+      }
+    ],
+    "contact": "",
+    "phone": "",
+    "rent": "",
+    "deposit": "",
+    "size": "",
+    "material": "",
+    "lighting": "",
+    "direction": "",
+    "visibility": "",
+    "competitor": "",
+    "notes": ""
+  },
+  {
+    "id": "P16",
+    "name": "候選點 16",
+    "status": "pending",
+    "tier": "",
+    "lat": 22.605939,
+    "lng": 120.396881,
+    "visitDate": "2026/07/18",
+    "photos": [
+      {
+        "file": "IMG_4446.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4447.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4448.jpg",
+        "keep": true
+      }
+    ],
+    "contact": "",
+    "phone": "",
+    "rent": "",
+    "deposit": "",
+    "size": "",
+    "material": "",
+    "lighting": "",
+    "direction": "",
+    "visibility": "",
+    "competitor": "",
+    "notes": ""
+  },
+  {
+    "id": "P17",
+    "name": "候選點 17",
+    "status": "pending",
+    "tier": "",
+    "lat": 22.602856,
+    "lng": 120.398735,
+    "visitDate": "2026/07/18",
+    "photos": [
+      {
+        "file": "IMG_4451.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4452.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4453.jpg",
+        "keep": true
+      }
+    ],
+    "contact": "",
+    "phone": "",
+    "rent": "",
+    "deposit": "",
+    "size": "",
+    "material": "",
+    "lighting": "",
+    "direction": "",
+    "visibility": "",
+    "competitor": "",
+    "notes": ""
+  },
+  {
+    "id": "P18",
+    "name": "候選點 18",
+    "status": "pending",
+    "tier": "",
+    "lat": 22.601678,
+    "lng": 120.398072,
+    "visitDate": "2026/07/19",
+    "photos": [
+      {
+        "file": "IMG_4510.jpg",
+        "keep": true
+      }
+    ],
+    "contact": "",
+    "phone": "",
+    "rent": "",
+    "deposit": "",
+    "size": "",
+    "material": "",
+    "lighting": "",
+    "direction": "",
+    "visibility": "",
+    "competitor": "",
+    "notes": ""
+  },
+  {
+    "id": "P19",
+    "name": "候選點 19",
+    "status": "pending",
+    "tier": "",
+    "lat": 22.59974,
+    "lng": 120.399875,
+    "visitDate": "2026/07/18",
+    "photos": [
+      {
+        "file": "IMG_4454.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4525.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4526.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4539.jpg",
+        "keep": true
+      }
+    ],
+    "contact": "",
+    "phone": "",
+    "rent": "",
+    "deposit": "",
+    "size": "",
+    "material": "",
+    "lighting": "",
+    "direction": "",
+    "visibility": "",
+    "competitor": "",
+    "notes": ""
+  },
+  {
+    "id": "P20",
+    "name": "候選點 20",
+    "status": "pending",
+    "tier": "",
+    "lat": 22.596058,
+    "lng": 120.401353,
+    "visitDate": "2026/07/21",
+    "photos": [
+      {
+        "file": "IMG_4537.jpg",
+        "keep": true
+      }
+    ],
+    "contact": "",
+    "phone": "",
+    "rent": "",
+    "deposit": "",
+    "size": "",
+    "material": "",
+    "lighting": "",
+    "direction": "",
+    "visibility": "",
+    "competitor": "",
+    "notes": ""
+  },
+  {
+    "id": "P21",
+    "name": "候選點 21",
+    "status": "pending",
+    "tier": "",
+    "lat": 22.5916,
+    "lng": 120.402996,
+    "visitDate": "2026/07/21",
+    "photos": [
+      {
+        "file": "IMG_4529.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4530.jpg",
+        "keep": true
+      }
+    ],
+    "contact": "",
+    "phone": "",
+    "rent": "",
+    "deposit": "",
+    "size": "",
+    "material": "",
+    "lighting": "",
+    "direction": "",
+    "visibility": "",
+    "competitor": "",
+    "notes": ""
+  },
+  {
+    "id": "P22",
+    "name": "候選點 22",
+    "status": "pending",
+    "tier": "",
+    "lat": 22.589979,
+    "lng": 120.368,
+    "visitDate": "2026/07/18",
+    "photos": [
+      {
+        "file": "IMG_4441.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4442.jpg",
+        "keep": true
+      }
+    ],
+    "contact": "",
+    "phone": "",
+    "rent": "",
+    "deposit": "",
+    "size": "",
+    "material": "",
+    "lighting": "",
+    "direction": "",
+    "visibility": "",
+    "competitor": "",
+    "notes": ""
+  },
+  {
+    "id": "P23",
+    "name": "候選點 23",
+    "status": "pending",
+    "tier": "",
+    "lat": 22.586292,
+    "lng": 120.405268,
+    "visitDate": "2026/07/21",
+    "photos": [
+      {
+        "file": "IMG_4532.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4534.jpg",
+        "keep": true
+      },
+      {
+        "file": "IMG_4535.jpg",
+        "keep": true
+      }
+    ],
+    "contact": "",
+    "phone": "",
+    "rent": "",
+    "deposit": "",
+    "size": "",
+    "material": "",
+    "lighting": "",
+    "direction": "",
+    "visibility": "",
+    "competitor": "",
+    "notes": ""
+  }
+]
