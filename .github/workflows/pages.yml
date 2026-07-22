@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - claude/session-cmzrw9
   workflow_dispatch:
 
 permissions:
