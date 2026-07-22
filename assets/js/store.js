@@ -6,12 +6,32 @@ const Store = {
   async load() {
     const raw = localStorage.getItem(STORE_KEY);
     if (raw) {
-      try { return JSON.parse(raw); } catch (e) { /* fall through to reseed */ }
+      try {
+        const state = JSON.parse(raw);
+        /* 舊版資料沒有 seenFiles 欄位，用目前現有的照片檔名補一份起始清單
+           （沒辦法救回這個修正上線前就已經刪除的照片，但之後刪除都會被記住） */
+        if (!Array.isArray(state.seenFiles)) {
+          const seen = new Set();
+          (state.points || []).forEach(p => (p.photos || []).forEach(ph => { if (ph.file) seen.add(ph.file); }));
+          state.seenFiles = [...seen];
+          Store.save(state);
+        }
+        return state;
+      } catch (e) { /* fall through to reseed */ }
     }
     const seed = await fetch(SEED_URL).then(r => r.json());
-    const state = { points: seed, updatedAt: new Date().toISOString() };
+    const seenFiles = new Set();
+    seed.forEach(p => (p.photos || []).forEach(ph => { if (ph.file) seenFiles.add(ph.file); }));
+    const state = { points: seed, seenFiles: [...seenFiles], updatedAt: new Date().toISOString() };
     Store.save(state);
     return state;
+  },
+
+  /* 記錄「已經處理過」的照片檔名，即使之後被刪除也不會忘記——避免同步功能把已刪除的照片救回來 */
+  markSeen(state, filenames) {
+    const seen = new Set(state.seenFiles || []);
+    filenames.forEach(f => { if (f) seen.add(f); });
+    state.seenFiles = [...seen];
   },
 
   save(state) {

@@ -19,18 +19,18 @@ async function syncNewSeedPoints() {
   syncBtn.textContent = "同步中…";
   try {
     const seed = await fetch(`data/points.json?t=${Date.now()}`).then(r => r.json());
-    const existingFiles = new Set();
-    state.points.forEach(p => (p.photos || []).forEach(ph => { if (ph.file) existingFiles.add(ph.file); }));
+    const seenFiles = new Set(state.seenFiles || []);
 
     let newPointCount = 0, newPhotoCount = 0;
     seed.forEach(sp => {
-      const newPhotos = (sp.photos || []).filter(ph => ph.file && !existingFiles.has(ph.file));
+      const newPhotos = (sp.photos || []).filter(ph => ph.file && !seenFiles.has(ph.file));
       if (newPhotos.length === 0) return;
-      newPhotos.forEach(ph => existingFiles.add(ph.file));
       const clone = JSON.parse(JSON.stringify(sp));
       clone.id = Store.nextId(state);
       clone.photos = newPhotos;
       state.points.push(clone);
+      newPhotos.forEach(ph => seenFiles.add(ph.file));
+      Store.markSeen(state, newPhotos.map(ph => ph.file));
       newPointCount++;
       newPhotoCount += newPhotos.length;
     });
@@ -478,6 +478,7 @@ async function handleNewFiles(e) {
         visibility: "", competitor: "", notes: ""
       };
       state.points.push(point);
+      Store.markSeen(state, [file.name]);
       Store.save(state);
       render();
       added++;

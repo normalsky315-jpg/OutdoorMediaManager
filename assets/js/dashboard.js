@@ -381,6 +381,7 @@ async function addPhotoToPoint(point) {
         const src = await filePreviewSrc(file);
         point.photos = point.photos || [];
         point.photos.push({ file: file.name, keep: true, src });
+        Store.markSeen(state, [file.name]);
         save();
         renderDetail();
       } catch (err) {
@@ -420,6 +421,7 @@ async function handleNewPhotosForPoints(files) {
         visibility: "", competitor: "", notes: ""
       };
       state.points.push(point);
+      Store.markSeen(state, [file.name]);
       save();
       renderAll();
       if (!lat || !lng) noGpsQueue.push(point.id);
