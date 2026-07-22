@@ -361,41 +361,12 @@ function createPointAt(lat, lng) {
   renderAll();
 }
 
-function fileToDataURL(file) {
-  return new Promise(resolve => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = () => resolve("");
-    reader.readAsDataURL(file);
-  });
-}
-
-function readGPS(file) {
-  return new Promise(resolve => {
-    if (typeof EXIF === "undefined" || !/jpe?g$/i.test(file.name)) { resolve({ lat: null, lng: null }); return; }
-    try {
-      EXIF.getData(file, function () {
-        const lat = EXIF.getTag(this, "GPSLatitude");
-        const lng = EXIF.getTag(this, "GPSLongitude");
-        const latRef = EXIF.getTag(this, "GPSLatitudeRef") || "N";
-        const lngRef = EXIF.getTag(this, "GPSLongitudeRef") || "E";
-        if (!lat || !lng) { resolve({ lat: null, lng: null }); return; }
-        const toDeg = a => a[0] + a[1] / 60 + a[2] / 3600;
-        let latitude = toDeg(lat), longitude = toDeg(lng);
-        if (latRef === "S") latitude = -latitude;
-        if (lngRef === "W") longitude = -longitude;
-        resolve({ lat: latitude, lng: longitude });
-      });
-    } catch (e) { resolve({ lat: null, lng: null }); }
-  });
-}
-
 async function addPhotoToPoint(point) {
   const input = document.createElement("input");
   input.type = "file"; input.accept = "image/*"; input.multiple = true;
   input.onchange = async () => {
     for (const file of Array.from(input.files || [])) {
-      const src = await fileToDataURL(file);
+      const src = await filePreviewSrc(file);
       point.photos = point.photos || [];
       point.photos.push({ file: file.name, keep: true, src });
     }
@@ -408,8 +379,8 @@ async function addPhotoToPoint(point) {
 async function handleNewPhotosForPoints(files) {
   const noGpsQueue = [];
   for (const file of files) {
-    const { lat, lng } = await readGPS(file);
-    const src = await fileToDataURL(file);
+    const { lat, lng } = await readFileGPS(file);
+    const src = await filePreviewSrc(file);
     const point = {
       id: Store.nextId(state),
       name: file.name.replace(/\.[^.]+$/, ""),
