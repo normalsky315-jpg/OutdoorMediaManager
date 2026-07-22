@@ -10,6 +10,32 @@ function gmapsLink(lat, lng) {
   return `https://www.google.com/maps?q=${lat},${lng}`;
 }
 
+function splitPhotoToNewPoint(photo, sourcePoint) {
+  const idx = sourcePoint.photos.indexOf(photo);
+  if (idx === -1) return;
+  sourcePoint.photos.splice(idx, 1);
+  const newPoint = {
+    id: Store.nextId(state),
+    name: sourcePoint.name + "（拆分）",
+    area: sourcePoint.area || "",
+    facing: "",
+    address: sourcePoint.address || "",
+    status: "pending",
+    tier: "",
+    lat: sourcePoint.lat,
+    lng: sourcePoint.lng,
+    visitDate: sourcePoint.visitDate,
+    photos: [photo],
+    contact: "", phone: "", rent: "", deposit: "",
+    size: "", material: "", lighting: "", direction: "",
+    visibility: "", competitor: "", notes: ""
+  };
+  const sourceIdx = state.points.findIndex(p => p.id === sourcePoint.id);
+  state.points.splice(sourceIdx + 1, 0, newPoint);
+  Store.save(state);
+  render();
+}
+
 async function init() {
   state = await Store.load();
   render();
@@ -101,9 +127,9 @@ function renderCard(point) {
 
   const thumbs = document.createElement("div");
   thumbs.className = "thumbs";
-  (point.photos || []).forEach(photo => {
+  (point.photos || []).filter(photo => photo.keep !== false).forEach(photo => {
     const t = document.createElement("div");
-    t.className = "thumb" + (photo.keep === false ? " discarded" : "");
+    t.className = "thumb";
     const img = document.createElement("img");
     img.src = photoSrc(photo);
     img.loading = "lazy";
@@ -114,18 +140,19 @@ function renderCard(point) {
       }));
     };
     img.addEventListener("click", () => {
-      if (photo.keep !== false) openLightbox(photoSrc(photo), photo.boxes);
+      openLightbox(photoSrc(photo), photo.boxes);
     });
     const drawOverlay = () => positionOverlayBoxes(t, img, photo.boxes, "cover");
     img.addEventListener("load", drawOverlay);
     if (img.complete && img.naturalWidth) drawOverlay();
     const rm = document.createElement("button");
     rm.className = "rm";
-    rm.textContent = photo.keep === false ? "↺" : "✕";
-    rm.title = photo.keep === false ? "恢復這張照片" : "移除這張照片";
+    rm.textContent = "✕";
+    rm.title = "移除這張照片";
     rm.addEventListener("click", ev => {
       ev.stopPropagation();
-      photo.keep = photo.keep === false ? true : false;
+      const idx = point.photos.indexOf(photo);
+      if (idx > -1) point.photos.splice(idx, 1);
       Store.save(state);
       render();
     });
@@ -141,9 +168,18 @@ function renderCard(point) {
         render();
       });
     });
+    const splitBtn = document.createElement("button");
+    splitBtn.className = "split-mark";
+    splitBtn.textContent = "⇲";
+    splitBtn.title = "把這張照片拆成獨立點位";
+    splitBtn.addEventListener("click", ev => {
+      ev.stopPropagation();
+      splitPhotoToNewPoint(photo, point);
+    });
     t.appendChild(img);
     t.appendChild(rm);
     t.appendChild(annBtn);
+    t.appendChild(splitBtn);
     if (photo.boxes && photo.boxes.length) {
       const badge = document.createElement("span");
       badge.className = "box-badge";

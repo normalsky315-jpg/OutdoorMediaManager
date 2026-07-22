@@ -137,6 +137,11 @@ button.ann-mark{
   background:rgba(0,0,0,.6);color:#fff;border:none;
   width:30px;height:30px;border-radius:50%;font-size:15px;line-height:1;cursor:pointer;
 }
+button.split-mark{
+  position:absolute;bottom:6px;right:6px;
+  background:rgba(0,0,0,.6);color:#fff;border:none;
+  width:30px;height:30px;border-radius:50%;font-size:15px;line-height:1;cursor:pointer;
+}
 .box-outline{
   position:absolute;border:2px solid #e0393e;background:rgba(224,57,62,.15);
   box-sizing:border-box;pointer-events:none;
