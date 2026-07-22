@@ -17,12 +17,14 @@
   .layout{
     display:flex;height:calc(100vh - 128px);min-height:420px;
   }
-  #mapPane{flex:1.3;position:relative;}
+  #mapPane{flex:1.3;position:relative;min-width:0;transition:flex-basis .2s;}
   #map{height:100%;width:100%;}
   #detailPane{
     flex:1;min-width:320px;max-width:460px;background:#fff;border-left:1px solid var(--line);
     overflow-y:auto;padding:16px;
   }
+  .layout.map-collapsed #mapPane{flex:0 0 260px;}
+  .layout.map-collapsed #detailPane{flex:1;max-width:none;}
   #listPane{display:none;padding:16px;overflow:auto;height:calc(100vh - 128px);}
   .tier-filter{
     display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;
@@ -113,6 +115,7 @@
   <nav>
     <button class="btn" id="modeMapBtn">🗺 地圖模式</button>
     <button class="btn" id="modeListBtn">📋 列表模式</button>
+    <button class="btn" id="toggleMapSizeBtn">🔍 縮小地圖</button>
     <button class="btn" id="addPinBtn">📍 新增點位</button>
     <button class="btn" id="addPhotoBtn">📷 上傳照片建立</button>
     <input type="file" id="photoInput" accept="image/*" multiple style="display:none">

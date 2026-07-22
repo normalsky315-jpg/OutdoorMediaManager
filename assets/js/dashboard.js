@@ -509,6 +509,12 @@ function bindEvents() {
     buildPrintArea();
     setTimeout(() => window.print(), 100);
   });
+  document.getElementById("toggleMapSizeBtn").addEventListener("click", () => {
+    const layout = document.getElementById("mapLayout");
+    const collapsed = layout.classList.toggle("map-collapsed");
+    document.getElementById("toggleMapSizeBtn").textContent = collapsed ? "🔍 恢復地圖大小" : "🔍 縮小地圖";
+    setTimeout(() => map.invalidateSize(), 250);
+  });
   document.querySelectorAll(".tier-filter-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       tierFilter = btn.dataset.tier;
