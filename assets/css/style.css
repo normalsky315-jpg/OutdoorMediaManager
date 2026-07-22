@@ -17,6 +17,7 @@ body{
   color:var(--ink);
   font-family:'Noto Sans TC',sans-serif;
   font-size:17px;
+  touch-action:manipulation;
 }
 a{color:inherit;}
 header.top{
