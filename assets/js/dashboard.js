@@ -374,6 +374,7 @@ async function addPhotoToPoint(point) {
         save();
         renderDetail();
       } catch (err) {
+        console.error("加入照片失敗:", file.name, err);
         failed++;
       }
     }
@@ -414,6 +415,7 @@ async function handleNewPhotosForPoints(files) {
       if (!lat || !lng) noGpsQueue.push(point.id);
       added++;
     } catch (err) {
+      console.error("加入照片失敗:", file.name, err);
       failed++;
     }
   }
