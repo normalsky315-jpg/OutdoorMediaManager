@@ -408,31 +408,47 @@ function closePinModal() {
 async function handleNewFiles(e) {
   const files = Array.from(e.target.files || []);
   if (files.length === 0) return;
-  for (const file of files) {
-    const { lat, lng } = await readFileGPS(file);
-    const src = await filePreviewSrc(file);
-    const now = new Date();
-    const point = {
-      id: Store.nextId(state),
-      name: file.name.replace(/\.[^.]+$/, ""),
-      area: "",
-      facing: "",
-      address: "",
-      status: "pending",
-      tier: "",
-      lat: lat || null,
-      lng: lng || null,
-      visitDate: now.toISOString().slice(0, 10).replace(/-/g, "/"),
-      photos: [{ file: file.name, keep: true, src }],
-      contact: "", phone: "", rent: "", deposit: "",
-      size: "", material: "", lighting: "", direction: "",
-      visibility: "", competitor: "", notes: ""
-    };
-    state.points.push(point);
+  const addBtn = document.getElementById("addPhotoBtn");
+  const originalLabel = addBtn.textContent;
+  let added = 0, failed = 0;
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    addBtn.textContent = `處理中… (${i + 1}/${files.length})`;
+    addBtn.disabled = true;
+    try {
+      const { lat, lng } = await readFileGPS(file);
+      const src = await filePreviewSrc(file);
+      const now = new Date();
+      const point = {
+        id: Store.nextId(state),
+        name: file.name.replace(/\.[^.]+$/, ""),
+        area: "",
+        facing: "",
+        address: "",
+        status: "pending",
+        tier: "",
+        lat: lat || null,
+        lng: lng || null,
+        visitDate: now.toISOString().slice(0, 10).replace(/-/g, "/"),
+        photos: [{ file: file.name, keep: true, src }],
+        contact: "", phone: "", rent: "", deposit: "",
+        size: "", material: "", lighting: "", direction: "",
+        visibility: "", competitor: "", notes: ""
+      };
+      state.points.push(point);
+      Store.save(state);
+      render();
+      added++;
+    } catch (err) {
+      failed++;
+    }
   }
-  Store.save(state);
-  render();
+  addBtn.textContent = originalLabel;
+  addBtn.disabled = false;
   e.target.value = "";
+  if (failed > 0) {
+    alert(`${added} 張照片加入成功，${failed} 張處理失敗（可能是檔案格式問題），請確認後重試。`);
+  }
 }
 
 init();
