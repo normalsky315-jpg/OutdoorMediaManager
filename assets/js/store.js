@@ -57,3 +57,44 @@ function tierScore(p) {
 function keptPhotos(p) {
   return (p.photos || []).filter(ph => ph.keep !== false);
 }
+
+function isHeicFile(file) {
+  return /\.hei[cf]$/i.test(file.name) || file.type === "image/heic" || file.type === "image/heif";
+}
+
+function fileToDataURL(file) {
+  return new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => resolve("");
+    reader.readAsDataURL(file);
+  });
+}
+
+/* HEIC/HEIF 無法在大多數瀏覽器（Safari 除外）直接顯示，先轉成 JPEG 再預覽 */
+async function filePreviewSrc(file) {
+  if (isHeicFile(file) && typeof heic2any !== "undefined") {
+    try {
+      const converted = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.85 });
+      const blob = Array.isArray(converted) ? converted[0] : converted;
+      return await fileToDataURL(blob);
+    } catch (err) {
+      /* 轉檔失敗就退回原始檔案，至少 Safari 還能預覽 */
+    }
+  }
+  return await fileToDataURL(file);
+}
+
+/* exifr 支援 JPEG/HEIC/PNG 等多種格式讀取 GPS，取代只支援 JPEG 的舊版 exif-js */
+async function readFileGPS(file) {
+  if (typeof exifr === "undefined") return { lat: null, lng: null };
+  try {
+    const gps = await exifr.gps(file);
+    if (gps && typeof gps.latitude === "number" && typeof gps.longitude === "number") {
+      return { lat: gps.latitude, lng: gps.longitude };
+    }
+  } catch (err) {
+    /* 讀取失敗（例如沒有 GPS 資訊）就當作沒有座標 */
+  }
+  return { lat: null, lng: null };
+}

@@ -132,7 +132,6 @@ function renderCard(point) {
     t.className = "thumb";
     const img = document.createElement("img");
     img.src = photoSrc(photo);
-    img.loading = "lazy";
     img.onerror = () => {
       img.replaceWith(Object.assign(document.createElement("div"), {
         className: "fallback",
@@ -410,8 +409,8 @@ async function handleNewFiles(e) {
   const files = Array.from(e.target.files || []);
   if (files.length === 0) return;
   for (const file of files) {
-    const { lat, lng } = await readGPS(file);
-    const src = await fileToDataURL(file);
+    const { lat, lng } = await readFileGPS(file);
+    const src = await filePreviewSrc(file);
     const now = new Date();
     const point = {
       id: Store.nextId(state),
@@ -434,41 +433,6 @@ async function handleNewFiles(e) {
   Store.save(state);
   render();
   e.target.value = "";
-}
-
-function fileToDataURL(file) {
-  return new Promise(resolve => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = () => resolve("");
-    reader.readAsDataURL(file);
-  });
-}
-
-function readGPS(file) {
-  return new Promise(resolve => {
-    if (typeof EXIF === "undefined" || !/jpe?g$/i.test(file.name)) {
-      resolve({ lat: null, lng: null });
-      return;
-    }
-    try {
-      EXIF.getData(file, function () {
-        const lat = EXIF.getTag(this, "GPSLatitude");
-        const lng = EXIF.getTag(this, "GPSLongitude");
-        const latRef = EXIF.getTag(this, "GPSLatitudeRef") || "N";
-        const lngRef = EXIF.getTag(this, "GPSLongitudeRef") || "E";
-        if (!lat || !lng) { resolve({ lat: null, lng: null }); return; }
-        const toDeg = arr => arr[0] + arr[1] / 60 + arr[2] / 3600;
-        let latitude = toDeg(lat);
-        let longitude = toDeg(lng);
-        if (latRef === "S") latitude = -latitude;
-        if (lngRef === "W") longitude = -longitude;
-        resolve({ lat: latitude, lng: longitude });
-      });
-    } catch (err) {
-      resolve({ lat: null, lng: null });
-    }
-  });
 }
 
 init();
