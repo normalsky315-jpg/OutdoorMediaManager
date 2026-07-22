@@ -116,6 +116,9 @@ function renderCard(point) {
     img.addEventListener("click", () => {
       if (photo.keep !== false) openLightbox(photoSrc(photo), photo.boxes);
     });
+    const drawOverlay = () => positionOverlayBoxes(t, img, photo.boxes, "cover");
+    img.addEventListener("load", drawOverlay);
+    if (img.complete && img.naturalWidth) drawOverlay();
     const rm = document.createElement("button");
     rm.className = "rm";
     rm.textContent = photo.keep === false ? "↺" : "✕";
@@ -242,18 +245,24 @@ function escapeAttr(s) {
 }
 
 function openLightbox(src, boxes) {
-  document.getElementById("lightboxImg").src = src;
+  const img = document.getElementById("lightboxImg");
   const layer = document.getElementById("lightboxBoxes");
-  layer.innerHTML = "";
-  (boxes || []).forEach(b => {
-    const el = document.createElement("div");
-    el.className = "box-outline";
-    el.style.left = (b.x * 100) + "%";
-    el.style.top = (b.y * 100) + "%";
-    el.style.width = (b.w * 100) + "%";
-    el.style.height = (b.h * 100) + "%";
-    layer.appendChild(el);
-  });
+  const draw = () => {
+    fitImageToBox(img, Math.min(window.innerWidth * 0.88, 900), Math.min(window.innerHeight * 0.78, 780));
+    layer.innerHTML = "";
+    (boxes || []).forEach(b => {
+      const el = document.createElement("div");
+      el.className = "box-outline";
+      el.style.left = (b.x * 100) + "%";
+      el.style.top = (b.y * 100) + "%";
+      el.style.width = (b.w * 100) + "%";
+      el.style.height = (b.h * 100) + "%";
+      layer.appendChild(el);
+    });
+  };
+  img.onload = draw;
+  img.src = src;
+  if (img.complete && img.naturalWidth) draw();
   document.getElementById("lightbox").classList.add("open");
 }
 
