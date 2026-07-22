@@ -6,6 +6,7 @@ let selectedId = null;
 let mode = "map";
 let pinDropArmed = false;
 let awaitingPinFor = null;
+let tierFilter = "";
 
 function photoSrc(photo) {
   return photo.src || `assets/photos/${photo.file}`;
@@ -265,10 +266,19 @@ function renderDetail() {
   });
 }
 
+function filteredPoints() {
+  return tierFilter ? state.points.filter(p => p.tier === tierFilter) : state.points.slice();
+}
+
 function renderList() {
   const tbody = document.getElementById("listBody");
   tbody.innerHTML = "";
-  state.points
+  const pts = filteredPoints();
+  const countEl = document.getElementById("tierFilterCount");
+  if (countEl) {
+    countEl.textContent = tierFilter ? `共 ${pts.length} 個 ${tierFilter} 級點位` : `共 ${pts.length} 個點位`;
+  }
+  pts
     .slice()
     .sort((a, b) => tierScore(b) - tierScore(a))
     .forEach(p => {
@@ -432,9 +442,12 @@ async function handleNewPhotosForPoints(files) {
 }
 
 function buildPrintArea() {
-  const pts = state.points.slice().sort((a, b) => tierScore(b) - tierScore(a));
+  const pts = filteredPoints().sort((a, b) => tierScore(b) - tierScore(a));
   const area = document.getElementById("printArea");
-  area.innerHTML = pts.map(p => `
+  const filterNote = tierFilter
+    ? `<p class="p-filter-note">本報告僅包含 ${tierFilter} 級點位，共 ${pts.length} 個</p>`
+    : "";
+  area.innerHTML = filterNote + pts.map(p => `
     <div class="p-page">
       <h2>${p.area ? escapeHtml(p.area) + " · " : ""}${escapeHtml(p.name)} ${p.tier ? "（" + p.tier + " 級）" : ""}</h2>
       <div class="p-photos">
@@ -460,7 +473,7 @@ function buildPrintArea() {
 }
 
 function exportExcel() {
-  const pts = state.points;
+  const pts = filteredPoints();
   const rows = pts.map(p => ({
     "區域": p.area, "點位": p.name, "評等": p.tier,
     "GPS緯度": p.lat || "", "GPS經度": p.lng || "",
@@ -473,7 +486,8 @@ function exportExcel() {
   const ws = XLSX.utils.json_to_sheet(rows);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "點位資料");
-  XLSX.writeFile(wb, `吉隆天曜OOH現勘報告_${new Date().toISOString().slice(0,10)}.xlsx`);
+  const tierSuffix = tierFilter ? `_${tierFilter}級` : "";
+  XLSX.writeFile(wb, `吉隆天曜OOH現勘報告${tierSuffix}_${new Date().toISOString().slice(0,10)}.xlsx`);
 }
 
 function bindEvents() {
@@ -494,6 +508,13 @@ function bindEvents() {
   document.getElementById("printBtn").addEventListener("click", () => {
     buildPrintArea();
     setTimeout(() => window.print(), 100);
+  });
+  document.querySelectorAll(".tier-filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      tierFilter = btn.dataset.tier;
+      document.querySelectorAll(".tier-filter-btn").forEach(b => b.classList.toggle("active", b === btn));
+      renderList();
+    });
   });
   document.getElementById("lightboxClose").addEventListener("click", () => document.getElementById("lightbox").classList.remove("open"));
   document.getElementById("lightbox").addEventListener("click", e => { if (e.target.id === "lightbox") e.target.classList.remove("open"); });
