@@ -78,10 +78,27 @@ function fileToDataURL(file) {
   });
 }
 
+/* 檢查瀏覽器能不能直接原生解碼這張圖（Safari 可以直接顯示 HEIC，不需要再轉檔） */
+function canDecodeNatively(src) {
+  return new Promise(resolve => {
+    const img = new Image();
+    const timer = setTimeout(() => resolve(false), 3000);
+    img.onload = () => { clearTimeout(timer); resolve(img.naturalWidth > 0); };
+    img.onerror = () => { clearTimeout(timer); resolve(false); };
+    img.src = src;
+  });
+}
+
 /* HEIC/HEIF 無法在大多數瀏覽器（Safari 除外）直接顯示，先轉成 JPEG 再預覽
    加上逾時保護：手機拍的大檔案轉檔可能要幾秒鐘，但絕不能整批卡住不動 */
 async function filePreviewSrc(file) {
-  if (isHeicFile(file) && typeof heic2any !== "undefined") {
+  const rawSrc = await fileToDataURL(file);
+  if (!isHeicFile(file)) return rawSrc;
+
+  /* Safari 等能原生解碼 HEIC 的瀏覽器，直接用原始檔案就好，不用跑轉檔 */
+  if (await canDecodeNatively(rawSrc)) return rawSrc;
+
+  if (typeof heic2any !== "undefined") {
     try {
       const converted = await withTimeout(
         heic2any({ blob: file, toType: "image/jpeg", quality: 0.85 }),
@@ -93,10 +110,11 @@ async function filePreviewSrc(file) {
         return await fileToDataURL(blob);
       }
     } catch (err) {
+      console.error("HEIC 轉檔失敗:", file.name, err);
       /* 轉檔失敗就退回原始檔案，至少 Safari 還能預覽 */
     }
   }
-  return await fileToDataURL(file);
+  return rawSrc;
 }
 
 /* exifr 支援 JPEG/HEIC/PNG 等多種格式讀取 GPS，取代只支援 JPEG 的舊版 exif-js */

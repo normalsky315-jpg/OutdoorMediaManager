@@ -440,6 +440,7 @@ async function handleNewFiles(e) {
       render();
       added++;
     } catch (err) {
+      console.error("加入照片失敗:", file.name, err);
       failed++;
     }
   }
