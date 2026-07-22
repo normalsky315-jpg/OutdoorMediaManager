@@ -8,10 +8,14 @@ function openAnnotator(src, existingBoxes, onSave) {
   annBoxes = (existingBoxes || []).map(b => ({ ...b }));
   annOnSave = onSave;
   const img = document.getElementById("annotateImg");
-  img.onload = renderAnnBoxes;
+  const setup = () => {
+    fitImageToBox(img, Math.min(window.innerWidth * 0.88, 820), Math.min(window.innerHeight * 0.64, 680));
+    renderAnnBoxes();
+  };
+  img.onload = setup;
   img.src = src;
   document.getElementById("annotateModal").classList.add("open");
-  if (img.complete) renderAnnBoxes();
+  if (img.complete && img.naturalWidth) setup();
   bindAnnotateLayer();
 }
 
@@ -129,6 +133,36 @@ function bindAnnotateLayer() {
 }
 
 function clamp01(n) { return Math.max(0, Math.min(1, n)); }
+
+/* 讓照片依比例放大/縮小以「精確」填滿目標尺寸（不留白邊），小圖也會放大到舒適大小 */
+function fitImageToBox(img, maxW, maxH) {
+  const nw = img.naturalWidth, nh = img.naturalHeight;
+  if (!nw || !nh) return;
+  const scale = Math.min(maxW / nw, maxH / nh);
+  img.style.width = (nw * scale) + "px";
+  img.style.height = (nh * scale) + "px";
+}
+
+/* 依照 object-fit:cover 或 contain 的實際顯示比例，把百分比方框正確疊加在縮圖／相簿容器上 */
+function positionOverlayBoxes(container, img, boxes, mode) {
+  container.querySelectorAll(".box-outline").forEach(el => el.remove());
+  if (!boxes || !boxes.length) return;
+  const cw = container.clientWidth, ch = container.clientHeight;
+  const nw = img.naturalWidth, nh = img.naturalHeight;
+  if (!cw || !ch || !nw || !nh) return;
+  const scale = mode === "contain" ? Math.min(cw / nw, ch / nh) : Math.max(cw / nw, ch / nh);
+  const rw = nw * scale, rh = nh * scale;
+  const ox = (cw - rw) / 2, oy = (ch - rh) / 2;
+  boxes.forEach(b => {
+    const el = document.createElement("div");
+    el.className = "box-outline";
+    el.style.left = (ox + b.x * rw) + "px";
+    el.style.top = (oy + b.y * rh) + "px";
+    el.style.width = (b.w * rw) + "px";
+    el.style.height = (b.h * rh) + "px";
+    container.appendChild(el);
+  });
+}
 
 function bindAnnotateModalChrome() {
   const clearBtn = document.getElementById("annotateClearBtn");
