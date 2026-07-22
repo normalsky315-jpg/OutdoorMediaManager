@@ -365,41 +365,63 @@ async function addPhotoToPoint(point) {
   const input = document.createElement("input");
   input.type = "file"; input.accept = "image/*"; input.multiple = true;
   input.onchange = async () => {
+    let failed = 0;
     for (const file of Array.from(input.files || [])) {
-      const src = await filePreviewSrc(file);
-      point.photos = point.photos || [];
-      point.photos.push({ file: file.name, keep: true, src });
+      try {
+        const src = await filePreviewSrc(file);
+        point.photos = point.photos || [];
+        point.photos.push({ file: file.name, keep: true, src });
+        save();
+        renderDetail();
+      } catch (err) {
+        failed++;
+      }
     }
-    save();
-    renderDetail();
+    if (failed > 0) alert(`${failed} 張照片處理失敗（可能是檔案格式問題），請確認後重試。`);
   };
   input.click();
 }
 
 async function handleNewPhotosForPoints(files) {
   const noGpsQueue = [];
-  for (const file of files) {
-    const { lat, lng } = await readFileGPS(file);
-    const src = await filePreviewSrc(file);
-    const point = {
-      id: Store.nextId(state),
-      name: file.name.replace(/\.[^.]+$/, ""),
-      area: "", facing: "", address: "",
-      status: "confirmed",
-      tier: "",
-      lat: lat || null,
-      lng: lng || null,
-      visitDate: new Date().toISOString().slice(0, 10).replace(/-/g, "/"),
-      photos: [{ file: file.name, keep: true, src }],
-      contact: "", phone: "", rent: "", deposit: "",
-      size: "", material: "", lighting: "", direction: "",
-      visibility: "", competitor: "", notes: ""
-    };
-    state.points.push(point);
-    if (!lat || !lng) noGpsQueue.push(point.id);
+  const addBtn = document.getElementById("addPhotoBtn");
+  const originalLabel = addBtn.textContent;
+  let added = 0, failed = 0;
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    addBtn.textContent = `處理中… (${i + 1}/${files.length})`;
+    addBtn.disabled = true;
+    try {
+      const { lat, lng } = await readFileGPS(file);
+      const src = await filePreviewSrc(file);
+      const point = {
+        id: Store.nextId(state),
+        name: file.name.replace(/\.[^.]+$/, ""),
+        area: "", facing: "", address: "",
+        status: "confirmed",
+        tier: "",
+        lat: lat || null,
+        lng: lng || null,
+        visitDate: new Date().toISOString().slice(0, 10).replace(/-/g, "/"),
+        photos: [{ file: file.name, keep: true, src }],
+        contact: "", phone: "", rent: "", deposit: "",
+        size: "", material: "", lighting: "", direction: "",
+        visibility: "", competitor: "", notes: ""
+      };
+      state.points.push(point);
+      save();
+      renderAll();
+      if (!lat || !lng) noGpsQueue.push(point.id);
+      added++;
+    } catch (err) {
+      failed++;
+    }
   }
-  save();
-  renderAll();
+  addBtn.textContent = originalLabel;
+  addBtn.disabled = false;
+  if (failed > 0) {
+    alert(`${added} 張照片加入成功，${failed} 張處理失敗（可能是檔案格式問題），請確認後重試。`);
+  }
   if (noGpsQueue.length) {
     awaitingPinFor = noGpsQueue[0];
     showBanner(`「${state.points.find(p=>p.id===noGpsQueue[0]).name}」沒有 GPS，請點擊地圖設定其位置`);

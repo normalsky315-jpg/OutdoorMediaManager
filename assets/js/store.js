@@ -62,6 +62,13 @@ function isHeicFile(file) {
   return /\.hei[cf]$/i.test(file.name) || file.type === "image/heic" || file.type === "image/heif";
 }
 
+function withTimeout(promise, ms, fallback) {
+  return Promise.race([
+    promise,
+    new Promise(resolve => setTimeout(() => resolve(fallback), ms))
+  ]);
+}
+
 function fileToDataURL(file) {
   return new Promise(resolve => {
     const reader = new FileReader();
@@ -71,13 +78,20 @@ function fileToDataURL(file) {
   });
 }
 
-/* HEIC/HEIF 無法在大多數瀏覽器（Safari 除外）直接顯示，先轉成 JPEG 再預覽 */
+/* HEIC/HEIF 無法在大多數瀏覽器（Safari 除外）直接顯示，先轉成 JPEG 再預覽
+   加上逾時保護：手機拍的大檔案轉檔可能要幾秒鐘，但絕不能整批卡住不動 */
 async function filePreviewSrc(file) {
   if (isHeicFile(file) && typeof heic2any !== "undefined") {
     try {
-      const converted = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.85 });
-      const blob = Array.isArray(converted) ? converted[0] : converted;
-      return await fileToDataURL(blob);
+      const converted = await withTimeout(
+        heic2any({ blob: file, toType: "image/jpeg", quality: 0.85 }),
+        20000,
+        null
+      );
+      if (converted) {
+        const blob = Array.isArray(converted) ? converted[0] : converted;
+        return await fileToDataURL(blob);
+      }
     } catch (err) {
       /* 轉檔失敗就退回原始檔案，至少 Safari 還能預覽 */
     }
@@ -89,7 +103,7 @@ async function filePreviewSrc(file) {
 async function readFileGPS(file) {
   if (typeof exifr === "undefined") return { lat: null, lng: null };
   try {
-    const gps = await exifr.gps(file);
+    const gps = await withTimeout(exifr.gps(file), 8000, null);
     if (gps && typeof gps.latitude === "number" && typeof gps.longitude === "number") {
       return { lat: gps.latitude, lng: gps.longitude };
     }
