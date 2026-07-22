@@ -493,6 +493,11 @@ function bindEvents() {
   });
   document.getElementById("lightboxClose").addEventListener("click", () => document.getElementById("lightbox").classList.remove("open"));
   document.getElementById("lightbox").addEventListener("click", e => { if (e.target.id === "lightbox") e.target.classList.remove("open"); });
+  document.addEventListener("keydown", e => {
+    if (e.key !== "Escape") return;
+    document.getElementById("lightbox").classList.remove("open");
+    closeAnnotator();
+  });
 }
 
 init();

@@ -36,8 +36,44 @@ function renderAnnBoxes() {
       renderAnnBoxes();
     });
     el.appendChild(del);
+
+    ["nw", "ne", "sw", "se"].forEach(corner => {
+      const handle = document.createElement("div");
+      handle.className = "ann-handle ann-handle-" + corner;
+      handle.addEventListener("pointerdown", ev => {
+        ev.stopPropagation();
+        startResize(ev, i, corner, layer);
+      });
+      el.appendChild(handle);
+    });
+
     layer.appendChild(el);
   });
+}
+
+function startResize(e, index, corner, layer) {
+  const rect = layer.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
+  const box = annBoxes[index];
+  const fixedX = corner.includes("w") ? box.x + box.w : box.x;
+  const fixedY = corner.includes("n") ? box.y + box.h : box.y;
+  layer.setPointerCapture(e.pointerId);
+
+  function onMove(ev) {
+    const cx = clamp01((ev.clientX - rect.left) / rect.width);
+    const cy = clamp01((ev.clientY - rect.top) / rect.height);
+    annBoxes[index] = {
+      x: Math.min(fixedX, cx), y: Math.min(fixedY, cy),
+      w: Math.abs(cx - fixedX), h: Math.abs(cy - fixedY)
+    };
+    renderAnnBoxes();
+  }
+  function onUp() {
+    layer.removeEventListener("pointermove", onMove);
+    layer.removeEventListener("pointerup", onUp);
+  }
+  layer.addEventListener("pointermove", onMove);
+  layer.addEventListener("pointerup", onUp);
 }
 
 function boxOverlayDiv(b) {

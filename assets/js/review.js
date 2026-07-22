@@ -156,15 +156,25 @@ function renderCard(point) {
     ? `<span>📅 ${point.visitDate || "—"}</span><span>📍 ${point.lat.toFixed(5)}, ${point.lng.toFixed(5)}</span><a href="${gmapsLink(point.lat, point.lng)}" target="_blank" rel="noopener">在 Google 地圖開啟</a>`
     : `<span>📅 ${point.visitDate || "—"}</span>`;
 
-  const facing = document.createElement("input");
-  facing.type = "text";
-  facing.className = "note";
-  facing.style.marginBottom = "0";
-  facing.placeholder = "朝向／座向（例如：面向大寮、南向車道）— 同地點不同朝向請用「複製點位」分開建卡";
-  facing.value = point.facing || "";
-  facing.addEventListener("input", e => {
-    point.facing = e.target.value;
-    Store.save(state);
+  const fieldDefs = [
+    ["address", "地址／位置描述"], ["facing", "朝向／座向"],
+    ["contact", "聯絡人（出租人／窗口）"], ["phone", "電話"],
+    ["rent", "月租金"], ["deposit", "押金"],
+    ["size", "看板尺寸"], ["material", "材質"],
+    ["lighting", "是否照明"], ["direction", "車流方向"],
+    ["visibility", "可視距離"], ["competitor", "競品狀況"]
+  ];
+  const fieldsGrid = document.createElement("div");
+  fieldsGrid.className = "card-fields";
+  fieldDefs.forEach(([key, label]) => {
+    const f = document.createElement("div");
+    f.className = "card-field";
+    f.innerHTML = `<label>${label}</label><input type="text" value="${escapeAttr(point[key] || "")}">`;
+    f.querySelector("input").addEventListener("input", e => {
+      point[key] = e.target.value;
+      Store.save(state);
+    });
+    fieldsGrid.appendChild(f);
   });
 
   const note = document.createElement("textarea");
@@ -208,19 +218,7 @@ function renderCard(point) {
   if (!hasLoc) {
     unlocatedNote = document.createElement("div");
     unlocatedNote.className = "unlocated-note";
-    unlocatedNote.innerHTML = `⚠️ 這張照片沒有 GPS 資訊（例如廠商傳來的 POP 卡片）。可以先在下方填地址、點選地圖標記位置；如果暫時不知道確切位置，也可以先不標記，直接送出——之後在主管報告頁面的「列表模式」仍看得到、可以再補標記。`;
-    const addrRow = document.createElement("input");
-    addrRow.type = "text";
-    addrRow.className = "note";
-    addrRow.style.marginBottom = "0";
-    addrRow.placeholder = "地址／位置描述（廠商提供的文字地址，之後可用來對照地圖）";
-    addrRow.value = point.address || "";
-    addrRow.addEventListener("input", e => {
-      point.address = e.target.value;
-      Store.save(state);
-    });
-    unlocatedNote.appendChild(document.createElement("br"));
-    unlocatedNote.appendChild(addrRow);
+    unlocatedNote.textContent = "⚠️ 這張照片沒有 GPS 資訊（例如廠商傳來的 POP 卡片）。可以先在下方填地址，之後在地圖標記位置；如果暫時不知道確切位置，也可以先不標記直接送出，之後在主管報告頁面仍看得到、可以再補標記。";
     const pinBtn = document.createElement("button");
     pinBtn.className = "btn small";
     pinBtn.textContent = "📍 在地圖上標記位置";
@@ -232,9 +230,9 @@ function renderCard(point) {
   el.appendChild(areaRow);
   el.appendChild(thumbs);
   el.appendChild(meta);
-  el.appendChild(facing);
-  el.appendChild(note);
   if (unlocatedNote) el.appendChild(unlocatedNote);
+  el.appendChild(fieldsGrid);
+  el.appendChild(note);
   el.appendChild(actions);
   return el;
 }
@@ -265,6 +263,12 @@ function bindGlobalEvents() {
   });
   document.getElementById("lightbox").addEventListener("click", e => {
     if (e.target.id === "lightbox") e.target.classList.remove("open");
+  });
+  document.addEventListener("keydown", e => {
+    if (e.key !== "Escape") return;
+    document.getElementById("lightbox").classList.remove("open");
+    closeAnnotator();
+    closePinModal();
   });
 
   document.getElementById("expandAll").addEventListener("click", () => {
