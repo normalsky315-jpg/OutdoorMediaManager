@@ -114,7 +114,7 @@ function renderCard(point) {
       }));
     };
     img.addEventListener("click", () => {
-      if (photo.keep !== false) openLightbox(photoSrc(photo));
+      if (photo.keep !== false) openLightbox(photoSrc(photo), photo.boxes);
     });
     const rm = document.createElement("button");
     rm.className = "rm";
@@ -126,8 +126,27 @@ function renderCard(point) {
       Store.save(state);
       render();
     });
+    const annBtn = document.createElement("button");
+    annBtn.className = "ann-mark";
+    annBtn.textContent = "▭";
+    annBtn.title = "標記看板範圍";
+    annBtn.addEventListener("click", ev => {
+      ev.stopPropagation();
+      openAnnotator(photoSrc(photo), photo.boxes, boxes => {
+        photo.boxes = boxes;
+        Store.save(state);
+        render();
+      });
+    });
     t.appendChild(img);
     t.appendChild(rm);
+    t.appendChild(annBtn);
+    if (photo.boxes && photo.boxes.length) {
+      const badge = document.createElement("span");
+      badge.className = "box-badge";
+      badge.textContent = "▭" + photo.boxes.length;
+      t.appendChild(badge);
+    }
     thumbs.appendChild(t);
   });
 
@@ -224,8 +243,19 @@ function escapeAttr(s) {
   return (s || "").replace(/"/g, "&quot;");
 }
 
-function openLightbox(src) {
+function openLightbox(src, boxes) {
   document.getElementById("lightboxImg").src = src;
+  const layer = document.getElementById("lightboxBoxes");
+  layer.innerHTML = "";
+  (boxes || []).forEach(b => {
+    const el = document.createElement("div");
+    el.className = "box-outline";
+    el.style.left = (b.x * 100) + "%";
+    el.style.top = (b.y * 100) + "%";
+    el.style.width = (b.w * 100) + "%";
+    el.style.height = (b.h * 100) + "%";
+    layer.appendChild(el);
+  });
   document.getElementById("lightbox").classList.add("open");
 }
 

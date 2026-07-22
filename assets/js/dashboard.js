@@ -192,8 +192,27 @@ function renderDetail() {
     const img = document.createElement("img");
     img.src = photoSrc(photo);
     img.onerror = () => { ph.innerHTML = `<div class="fallback" style="font-size:9px;display:flex;align-items:center;justify-content:center;height:100%;color:#a89f8d;">📷</div>`; };
+    img.addEventListener("click", () => openLightbox(photoSrc(photo), photo.boxes));
     ph.appendChild(img);
-    ph.addEventListener("click", () => openLightbox(photoSrc(photo)));
+    const annBtn = document.createElement("button");
+    annBtn.className = "ann-mark";
+    annBtn.textContent = "▭";
+    annBtn.title = "標記看板範圍";
+    annBtn.addEventListener("click", ev => {
+      ev.stopPropagation();
+      openAnnotator(photoSrc(photo), photo.boxes, boxes => {
+        photo.boxes = boxes;
+        save();
+        renderDetail();
+      });
+    });
+    ph.appendChild(annBtn);
+    if (photo.boxes && photo.boxes.length) {
+      const badge = document.createElement("span");
+      badge.className = "box-badge";
+      badge.textContent = "▭" + photo.boxes.length;
+      ph.appendChild(badge);
+    }
     gallery.appendChild(ph);
   });
   const addPh = document.createElement("div");
@@ -280,8 +299,19 @@ function escapeHtml(s) { return (s || "").replace(/[&<>"]/g, c => ({ "&": "&amp;
 
 function save() { Store.save(state); }
 
-function openLightbox(src) {
+function openLightbox(src, boxes) {
   document.getElementById("lightboxImg").src = src;
+  const layer = document.getElementById("lightboxBoxes");
+  layer.innerHTML = "";
+  (boxes || []).forEach(b => {
+    const el = document.createElement("div");
+    el.className = "box-outline";
+    el.style.left = (b.x * 100) + "%";
+    el.style.top = (b.y * 100) + "%";
+    el.style.width = (b.w * 100) + "%";
+    el.style.height = (b.h * 100) + "%";
+    layer.appendChild(el);
+  });
   document.getElementById("lightbox").classList.add("open");
 }
 
@@ -404,7 +434,12 @@ function buildPrintArea() {
     <div class="p-page">
       <h2>${p.area ? escapeHtml(p.area) + " · " : ""}${escapeHtml(p.name)} ${p.tier ? "（" + p.tier + " 級）" : ""}</h2>
       <div class="p-photos">
-        ${keptPhotos(p).slice(0, 4).map(ph => `<img src="${photoSrc(ph)}">`).join("")}
+        ${keptPhotos(p).slice(0, 4).map(ph => `
+          <div class="p-photo-wrap">
+            <img src="${photoSrc(ph)}">
+            ${(ph.boxes || []).map(b => `<div class="p-box" style="left:${b.x*100}%;top:${b.y*100}%;width:${b.w*100}%;height:${b.h*100}%;"></div>`).join("")}
+          </div>
+        `).join("")}
       </div>
       <table>
         <tr><td>GPS</td><td>${(p.lat && p.lng) ? p.lat + ", " + p.lng : "尚未定位"}</td><td>拍攝日期</td><td>${p.visitDate || "—"}</td></tr>

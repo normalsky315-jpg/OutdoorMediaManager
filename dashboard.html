@@ -58,8 +58,12 @@
     display:none;align-items:center;justify-content:center;padding:20px;
   }
   .lightbox.open{display:flex;}
-  .lightbox img{max-width:100%;max-height:90vh;border-radius:8px;}
+  .lightbox-stage{position:relative;display:inline-block;line-height:0;}
+  .lightbox-stage img{max-width:100%;max-height:90vh;border-radius:8px;display:block;}
+  .lightbox-boxes{position:absolute;inset:0;}
   .lightbox .close{position:absolute;top:16px;right:20px;color:#fff;font-size:28px;background:none;border:none;cursor:pointer;}
+  .d-gallery .ph .box-badge{top:2px;left:2px;}
+  .d-gallery .ph .ann-mark{bottom:2px;left:2px;}
   .leaflet-marker-icon.tier-S{filter:hue-rotate(0deg);}
   #printArea{display:none;}
   @media print{
@@ -67,7 +71,9 @@
     #printArea{display:block !important;}
     #printArea .p-page{page-break-after:always;padding:24px;}
     #printArea .p-photos{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0;}
-    #printArea .p-photos img{width:100%;border-radius:6px;}
+    #printArea .p-photo-wrap{position:relative;line-height:0;}
+    #printArea .p-photos img{width:100%;border-radius:6px;display:block;}
+    #printArea .p-box{position:absolute;border:2px solid #e0393e;background:rgba(224,57,62,.12);box-sizing:border-box;}
     #printArea table{width:100%;border-collapse:collapse;font-size:13px;}
     #printArea td{padding:5px 8px;border-bottom:1px solid #ddd;}
     #printArea h2{font-family:'Noto Serif TC',serif;color:#163828;}
@@ -112,7 +118,26 @@
 
 <div class="lightbox" id="lightbox">
   <button class="close" id="lightboxClose">✕</button>
-  <img id="lightboxImg" src="">
+  <div class="lightbox-stage">
+    <img id="lightboxImg" src="">
+    <div class="lightbox-boxes" id="lightboxBoxes"></div>
+  </div>
+</div>
+
+<div class="annotate-modal" id="annotateModal">
+  <div class="annotate-box">
+    <div class="annotate-head">
+      <span>標記廣告看板範圍</span>
+      <button class="btn small" id="annotateClearBtn">清除全部</button>
+      <button class="btn small solid" id="annotateDoneBtn">完成</button>
+      <button class="close" id="annotateCloseBtn">✕</button>
+    </div>
+    <div class="annotate-stage">
+      <img id="annotateImg" src="">
+      <div class="annotate-layer" id="annotateLayer"></div>
+    </div>
+    <p class="annotate-hint">在照片上拖曳畫出方框，標記廣告看板的位置範圍（可畫多個）。點框角上的 ✕ 可以刪除。</p>
+  </div>
 </div>
 
 <footer class="foot">吉隆天曜 OOH 現勘管理系統 · 主管報告模式</footer>
@@ -121,6 +146,7 @@
 <script src="https://cdn.jsdelivr.net/npm/exif-js@2.3.0/exif.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 <script src="assets/js/store.js"></script>
+<script src="assets/js/annotate.js"></script>
 <script src="assets/js/dashboard.js"></script>
 </body>
 </html>
