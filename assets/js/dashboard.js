@@ -306,7 +306,7 @@ function openLightbox(src, boxes) {
   const img = document.getElementById("lightboxImg");
   const layer = document.getElementById("lightboxBoxes");
   const draw = () => {
-    fitImageToBox(img, Math.min(window.innerWidth * 0.88, 900), Math.min(window.innerHeight * 0.78, 780));
+    fitImageToBox(img, window.innerWidth * 0.92, window.innerHeight * 0.85);
     layer.innerHTML = "";
     (boxes || []).forEach(b => {
       const el = document.createElement("div");

@@ -155,7 +155,7 @@ button.ann-mark{
 .annotate-head .btn{margin-left:auto;}
 .annotate-head .close{background:none;border:none;color:#fff;font-size:24px;cursor:pointer;line-height:1;}
 .annotate-stage{position:relative;display:inline-block;line-height:0;}
-.annotate-stage img{display:block;max-width:88vw;max-height:64vh;}
+.annotate-stage img{display:block;max-width:92vw;max-height:78vh;}
 .annotate-layer{position:absolute;inset:0;touch-action:none;cursor:crosshair;}
 .ann-box{
   position:absolute;border:2px solid #e0393e;background:rgba(224,57,62,.18);

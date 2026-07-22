@@ -9,7 +9,7 @@ function openAnnotator(src, existingBoxes, onSave) {
   annOnSave = onSave;
   const img = document.getElementById("annotateImg");
   const setup = () => {
-    fitImageToBox(img, Math.min(window.innerWidth * 0.88, 820), Math.min(window.innerHeight * 0.64, 680));
+    fitImageToBox(img, window.innerWidth * 0.85, window.innerHeight * 0.7);
     renderAnnBoxes();
   };
   img.onload = setup;
