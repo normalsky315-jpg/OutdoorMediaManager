@@ -37,6 +37,12 @@
     border:none;background:transparent;flex:1;min-width:0;border-bottom:1px dashed transparent;
   }
   .card-head input.name:focus{outline:none;border-bottom-color:var(--gold);}
+  .area-row{padding:0 12px 6px;}
+  .area-row input{
+    width:100%;border:1px solid var(--line);border-radius:6px;padding:5px 8px;
+    font-size:12px;background:#fdfcf8;color:var(--green);
+  }
+  .area-row input::placeholder{color:#a89f8d;}
   .thumbs{
     display:grid;grid-template-columns:repeat(4,1fr);gap:3px;padding:0 8px;
   }
@@ -132,6 +138,7 @@
     <input type="file" id="importInput" accept="application/json" style="display:none">
   </div>
   <div class="grid" id="grid"></div>
+  <datalist id="areaList"></datalist>
   <p class="tip" style="margin:16px 2px;padding:12px 14px;background:#fff;border-left:4px solid var(--gold);border-radius:4px;font-size:12.5px;line-height:1.6;">
     <b>操作說明：</b>系統已依照片 GPS 座標自動群聚成候選點位。請逐一檢查每個點位的照片，把不需要的照片打 ✕ 移除、幫點位命名並標註評等；不需要的點位可直接「捨棄」。完成後按下方「確認並前往主管報告」。
   </p>

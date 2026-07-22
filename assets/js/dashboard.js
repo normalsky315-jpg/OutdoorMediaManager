@@ -69,12 +69,14 @@ function renderAll() {
 }
 
 function renderStats() {
-  const pts = locatedPoints();
+  const pts = state.points;
   const tiers = { S: 0, A: 0, B: 0, C: 0 };
   let needsInfo = 0;
+  let unlocated = 0;
   pts.forEach(p => {
     if (p.tier) tiers[p.tier] = (tiers[p.tier] || 0) + 1;
     if (!p.contact && !p.phone) needsInfo++;
+    if (!p.lat || !p.lng) unlocated++;
   });
   document.getElementById("statBar").innerHTML = `
     <div class="stat-chip gold"><b>${pts.length}</b> 個點位</div>
@@ -83,6 +85,7 @@ function renderStats() {
     <div class="stat-chip"><b>${tiers.B || 0}</b> B 級</div>
     <div class="stat-chip"><b>${tiers.C || 0}</b> C 級</div>
     <div class="stat-chip warn"><b>${needsInfo}</b> 待補聯絡資料</div>
+    <div class="stat-chip warn"><b>${unlocated}</b> 尚未定位</div>
   `;
 }
 
@@ -92,7 +95,7 @@ function renderMarkers() {
   const pts = locatedPoints();
   pts.forEach(p => {
     const m = L.marker([p.lat, p.lng], { icon: markerIcon(p.tier) }).addTo(map);
-    m.bindTooltip(p.name, { direction: "top" });
+    m.bindTooltip(p.area ? `${p.area} · ${p.name}` : p.name, { direction: "top" });
     m.on("click", () => { selectedId = p.id; renderDetail(); });
     markers[p.id] = m;
   });
@@ -129,10 +132,57 @@ function renderDetail() {
   });
   el.appendChild(titleRow);
 
-  const gps = document.createElement("div");
-  gps.className = "d-gps";
-  gps.innerHTML = `📍 ${point.lat.toFixed(5)}, ${point.lng.toFixed(5)} · <a href="${gmapsLink(point.lat, point.lng)}" target="_blank" rel="noopener">Google 地圖</a> ${point.visitDate ? " · 📅 " + point.visitDate : ""}`;
-  el.appendChild(gps);
+  const areaRow = document.createElement("div");
+  areaRow.className = "d-gps";
+  areaRow.innerHTML = `<input type="text" placeholder="🗺 區域名稱（同一區域多個點位可填一樣）" value="${escapeAttr(point.area || "")}" style="width:100%;border:1px solid var(--line);border-radius:6px;padding:5px 8px;font-size:12.5px;background:#fdfcf8;color:var(--green);margin-bottom:6px;">`;
+  areaRow.querySelector("input").addEventListener("input", e => { point.area = e.target.value; save(); renderMarkers(); });
+  el.appendChild(areaRow);
+
+  const hasLoc = point.lat && point.lng;
+  if (hasLoc) {
+    const gps = document.createElement("div");
+    gps.className = "d-gps";
+    gps.innerHTML = `📍 ${point.lat.toFixed(5)}, ${point.lng.toFixed(5)} · <a href="${gmapsLink(point.lat, point.lng)}" target="_blank" rel="noopener">Google 地圖</a> ${point.visitDate ? " · 📅 " + point.visitDate : ""}`;
+    el.appendChild(gps);
+  } else {
+    const warn = document.createElement("div");
+    warn.className = "d-gps";
+    warn.style.color = "var(--warn)";
+    warn.textContent = `⚠️ 尚未定位（例如廠商 POP 卡片）${point.visitDate ? " · 📅 " + point.visitDate : ""}`;
+    el.appendChild(warn);
+
+    const locateBox = document.createElement("div");
+    locateBox.className = "fields";
+    locateBox.innerHTML = `
+      <div class="field"><label>緯度</label><input type="text" class="manLat" placeholder="例如 22.6100"></div>
+      <div class="field"><label>經度</label><input type="text" class="manLng" placeholder="例如 120.3900"></div>
+    `;
+    el.appendChild(locateBox);
+    const locateActions = document.createElement("div");
+    locateActions.className = "d-actions";
+    const setCoordBtn = document.createElement("button");
+    setCoordBtn.className = "btn small";
+    setCoordBtn.textContent = "套用座標";
+    setCoordBtn.addEventListener("click", () => {
+      const lat = parseFloat(locateBox.querySelector(".manLat").value);
+      const lng = parseFloat(locateBox.querySelector(".manLng").value);
+      if (isNaN(lat) || isNaN(lng)) { alert("請輸入有效的緯度／經度數字"); return; }
+      point.lat = lat; point.lng = lng;
+      save();
+      renderAll();
+    });
+    const pinOnMapBtn = document.createElement("button");
+    pinOnMapBtn.className = "btn small";
+    pinOnMapBtn.textContent = "📍 在地圖上點選位置";
+    pinOnMapBtn.addEventListener("click", () => {
+      awaitingPinFor = point.id;
+      setMode("map");
+      showBanner(`請在地圖上點擊，設定「${point.name}」的位置`);
+    });
+    locateActions.appendChild(setCoordBtn);
+    locateActions.appendChild(pinOnMapBtn);
+    el.appendChild(locateActions);
+  }
 
   const gallery = document.createElement("div");
   gallery.className = "d-gallery";
@@ -154,6 +204,7 @@ function renderDetail() {
   el.appendChild(gallery);
 
   const fields = [
+    ["address", "地址／位置描述"], ["facing", "朝向／座向"],
     ["contact", "聯絡人"], ["phone", "電話"],
     ["rent", "月租金"], ["deposit", "押金"],
     ["size", "看板尺寸"], ["material", "材質"],
@@ -195,13 +246,15 @@ function renderDetail() {
 function renderList() {
   const tbody = document.getElementById("listBody");
   tbody.innerHTML = "";
-  locatedPoints()
+  state.points
     .slice()
     .sort((a, b) => tierScore(b) - tierScore(a))
     .forEach(p => {
       const tr = document.createElement("tr");
       const missing = !p.contact && !p.phone;
+      const hasLoc = p.lat && p.lng;
       tr.innerHTML = `
+        <td>${escapeHtml(p.area || "—")}</td>
         <td>${escapeHtml(p.name)}</td>
         <td>${p.tier ? `<span class="badge tier-${p.tier}">${p.tier}</span>` : "—"}</td>
         <td>${escapeHtml(p.contact || "—")}</td>
@@ -209,7 +262,7 @@ function renderList() {
         <td>${escapeHtml(p.rent || "—")}</td>
         <td>${escapeHtml(p.size || "—")}</td>
         <td>${keptPhotos(p).length} 張</td>
-        <td>${missing ? `<span class="badge warn">待補資料</span>` : `<span class="badge ok">資料完整</span>`}</td>
+        <td>${hasLoc ? `<span class="badge ok">已定位</span>` : `<span class="badge warn">尚未定位</span>`} ${missing ? `<span class="badge warn">待補資料</span>` : ""}</td>
       `;
       tr.addEventListener("click", () => {
         selectedId = p.id;
@@ -252,6 +305,7 @@ function createPointAt(lat, lng) {
   const point = {
     id: Store.nextId(state),
     name: "新點位",
+    area: "", facing: "", address: "",
     status: "confirmed",
     tier: "",
     lat: +lat.toFixed(6),
@@ -320,6 +374,7 @@ async function handleNewPhotosForPoints(files) {
     const point = {
       id: Store.nextId(state),
       name: file.name.replace(/\.[^.]+$/, ""),
+      area: "", facing: "", address: "",
       status: "confirmed",
       tier: "",
       lat: lat || null,
@@ -343,16 +398,17 @@ async function handleNewPhotosForPoints(files) {
 }
 
 function buildPrintArea() {
-  const pts = locatedPoints().slice().sort((a, b) => tierScore(b) - tierScore(a));
+  const pts = state.points.slice().sort((a, b) => tierScore(b) - tierScore(a));
   const area = document.getElementById("printArea");
   area.innerHTML = pts.map(p => `
     <div class="p-page">
-      <h2>${escapeHtml(p.name)} ${p.tier ? "（" + p.tier + " 級）" : ""}</h2>
+      <h2>${p.area ? escapeHtml(p.area) + " · " : ""}${escapeHtml(p.name)} ${p.tier ? "（" + p.tier + " 級）" : ""}</h2>
       <div class="p-photos">
         ${keptPhotos(p).slice(0, 4).map(ph => `<img src="${photoSrc(ph)}">`).join("")}
       </div>
       <table>
-        <tr><td>GPS</td><td>${p.lat}, ${p.lng}</td><td>拍攝日期</td><td>${p.visitDate || "—"}</td></tr>
+        <tr><td>GPS</td><td>${(p.lat && p.lng) ? p.lat + ", " + p.lng : "尚未定位"}</td><td>拍攝日期</td><td>${p.visitDate || "—"}</td></tr>
+        <tr><td>地址</td><td>${escapeHtml(p.address || "—")}</td><td>朝向</td><td>${escapeHtml(p.facing || "—")}</td></tr>
         <tr><td>聯絡人</td><td>${escapeHtml(p.contact || "—")}</td><td>電話</td><td>${escapeHtml(p.phone || "—")}</td></tr>
         <tr><td>月租金</td><td>${escapeHtml(p.rent || "—")}</td><td>押金</td><td>${escapeHtml(p.deposit || "—")}</td></tr>
         <tr><td>尺寸</td><td>${escapeHtml(p.size || "—")}</td><td>材質</td><td>${escapeHtml(p.material || "—")}</td></tr>
@@ -365,9 +421,11 @@ function buildPrintArea() {
 }
 
 function exportExcel() {
-  const pts = locatedPoints();
+  const pts = state.points;
   const rows = pts.map(p => ({
-    "點位": p.name, "評等": p.tier, "GPS緯度": p.lat, "GPS經度": p.lng,
+    "區域": p.area, "點位": p.name, "評等": p.tier,
+    "GPS緯度": p.lat || "", "GPS經度": p.lng || "",
+    "地址": p.address, "朝向": p.facing,
     "拍攝日期": p.visitDate, "聯絡人": p.contact, "電話": p.phone,
     "月租金": p.rent, "押金": p.deposit, "尺寸": p.size, "材質": p.material,
     "照明": p.lighting, "車流方向": p.direction, "可視距離": p.visibility,

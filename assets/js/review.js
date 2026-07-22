@@ -39,6 +39,7 @@ function renderStats() {
 function renderGrid() {
   const grid = document.getElementById("grid");
   grid.innerHTML = "";
+  updateAreaList();
   if (state.points.length === 0) {
     grid.innerHTML = `<div class="empty-hint">目前沒有候選點位，請按上方「＋ 加入照片」開始。</div>`;
     return;
@@ -46,6 +47,12 @@ function renderGrid() {
   state.points.forEach(point => {
     grid.appendChild(renderCard(point));
   });
+}
+
+function updateAreaList() {
+  const areas = [...new Set(state.points.map(p => p.area).filter(Boolean))];
+  const dl = document.getElementById("areaList");
+  if (dl) dl.innerHTML = areas.map(a => `<option value="${escapeAttr(a)}">`).join("");
 }
 
 function renderCard(point) {
@@ -77,6 +84,20 @@ function renderCard(point) {
     Store.save(state);
     renderStats();
   });
+
+  const areaRow = document.createElement("div");
+  areaRow.className = "area-row";
+  const areaInput = document.createElement("input");
+  areaInput.type = "text";
+  areaInput.setAttribute("list", "areaList");
+  areaInput.placeholder = "🗺 區域名稱（例如：光明路×中庄路口）— 同一區域的多個點位可填一樣的名字";
+  areaInput.value = point.area || "";
+  areaInput.addEventListener("input", e => {
+    point.area = e.target.value;
+    Store.save(state);
+  });
+  areaInput.addEventListener("change", updateAreaList);
+  areaRow.appendChild(areaInput);
 
   const thumbs = document.createElement("div");
   thumbs.className = "thumbs";
@@ -116,6 +137,17 @@ function renderCard(point) {
     ? `<span>📅 ${point.visitDate || "—"}</span><span>📍 ${point.lat.toFixed(5)}, ${point.lng.toFixed(5)}</span><a href="${gmapsLink(point.lat, point.lng)}" target="_blank" rel="noopener">在 Google 地圖開啟</a>`
     : `<span>📅 ${point.visitDate || "—"}</span>`;
 
+  const facing = document.createElement("input");
+  facing.type = "text";
+  facing.className = "note";
+  facing.style.marginBottom = "0";
+  facing.placeholder = "朝向／座向（例如：面向大寮、南向車道）— 同地點不同朝向請用「複製點位」分開建卡";
+  facing.value = point.facing || "";
+  facing.addEventListener("input", e => {
+    point.facing = e.target.value;
+    Store.save(state);
+  });
+
   const note = document.createElement("textarea");
   note.className = "note";
   note.placeholder = "現場筆記（租金行情、房東聯絡方式、備註...）";
@@ -127,6 +159,19 @@ function renderCard(point) {
 
   const actions = document.createElement("div");
   actions.className = "card-actions";
+  const dupBtn = document.createElement("button");
+  dupBtn.className = "btn small";
+  dupBtn.textContent = "➕ 複製點位（不同朝向）";
+  dupBtn.title = "同一個地點但看板朝向/面向不同時，複製成獨立點位再分別勾選照片";
+  dupBtn.addEventListener("click", () => {
+    const clone = JSON.parse(JSON.stringify(point));
+    clone.id = Store.nextId(state);
+    clone.name = point.name + "（另一面）";
+    const idx = state.points.findIndex(p => p.id === point.id);
+    state.points.splice(idx + 1, 0, clone);
+    Store.save(state);
+    render();
+  });
   const discardBtn = document.createElement("button");
   discardBtn.className = "btn small danger";
   discardBtn.textContent = "捨棄此點位";
@@ -137,13 +182,26 @@ function renderCard(point) {
       render();
     }
   });
+  actions.appendChild(dupBtn);
   actions.appendChild(discardBtn);
 
   let unlocatedNote = null;
   if (!hasLoc) {
     unlocatedNote = document.createElement("div");
     unlocatedNote.className = "unlocated-note";
-    unlocatedNote.textContent = "⚠️ 這張照片沒有 GPS 資訊，請點選下方按鈕在地圖上標記位置";
+    unlocatedNote.innerHTML = `⚠️ 這張照片沒有 GPS 資訊（例如廠商傳來的 POP 卡片）。可以先在下方填地址、點選地圖標記位置；如果暫時不知道確切位置，也可以先不標記，直接送出——之後在主管報告頁面的「列表模式」仍看得到、可以再補標記。`;
+    const addrRow = document.createElement("input");
+    addrRow.type = "text";
+    addrRow.className = "note";
+    addrRow.style.marginBottom = "0";
+    addrRow.placeholder = "地址／位置描述（廠商提供的文字地址，之後可用來對照地圖）";
+    addrRow.value = point.address || "";
+    addrRow.addEventListener("input", e => {
+      point.address = e.target.value;
+      Store.save(state);
+    });
+    unlocatedNote.appendChild(document.createElement("br"));
+    unlocatedNote.appendChild(addrRow);
     const pinBtn = document.createElement("button");
     pinBtn.className = "btn small";
     pinBtn.textContent = "📍 在地圖上標記位置";
@@ -152,8 +210,10 @@ function renderCard(point) {
   }
 
   el.appendChild(head);
+  el.appendChild(areaRow);
   el.appendChild(thumbs);
   el.appendChild(meta);
+  el.appendChild(facing);
   el.appendChild(note);
   if (unlocatedNote) el.appendChild(unlocatedNote);
   el.appendChild(actions);
@@ -202,21 +262,25 @@ function bindGlobalEvents() {
   });
 
   document.getElementById("discardAllPending").addEventListener("click", () => {
-    if (confirm("確定要捨棄所有「待定位」（沒有 GPS 且尚未手動標記）的點位嗎？")) {
-      state.points = state.points.filter(p => p.lat && p.lng);
+    if (confirm("確定要捨棄所有「沒有保留任何照片」的空點位嗎？（沒有 GPS 但有照片的點位不會被捨棄）")) {
+      state.points = state.points.filter(p => keptPhotos(p).length > 0);
       Store.save(state);
       render();
     }
   });
 
   document.getElementById("confirmAllBtn").addEventListener("click", () => {
-    const valid = state.points.filter(p => p.lat && p.lng && keptPhotos(p).length > 0);
+    const valid = state.points.filter(p => keptPhotos(p).length > 0);
     if (valid.length === 0) {
-      alert("目前沒有可用的點位（需要有 GPS 位置且至少保留一張照片）");
+      alert("目前沒有可用的點位（至少需保留一張照片）");
+      return;
+    }
+    const unlocatedCount = valid.filter(p => !p.lat || !p.lng).length;
+    if (unlocatedCount > 0 && !confirm(`有 ${unlocatedCount} 個點位還沒有標記地圖位置（例如廠商 POP 卡片），它們仍會被送到主管報告的列表模式，之後可以再補標記。要繼續嗎？`)) {
       return;
     }
     state.points.forEach(p => {
-      if (p.lat && p.lng && keptPhotos(p).length > 0) p.status = "confirmed";
+      if (keptPhotos(p).length > 0) p.status = "confirmed";
     });
     Store.save(state);
     window.location.href = "dashboard.html";
@@ -273,6 +337,9 @@ async function handleNewFiles(e) {
     const point = {
       id: Store.nextId(state),
       name: file.name.replace(/\.[^.]+$/, ""),
+      area: "",
+      facing: "",
+      address: "",
       status: "pending",
       tier: "",
       lat: lat || null,
