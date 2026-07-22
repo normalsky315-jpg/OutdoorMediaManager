@@ -10,6 +10,47 @@ function gmapsLink(lat, lng) {
   return `https://www.google.com/maps?q=${lat},${lng}`;
 }
 
+/* 把 GitHub 上種子資料（data/points.json）裡新加入的照片，合併進目前瀏覽器裡
+   已經累積的資料，不會動到既有的點位／已填的欄位（用照片檔名判斷是否已存在） */
+async function syncNewSeedPoints() {
+  const syncBtn = document.getElementById("syncSeedBtn");
+  const original = syncBtn.textContent;
+  syncBtn.disabled = true;
+  syncBtn.textContent = "同步中…";
+  try {
+    const seed = await fetch(`data/points.json?t=${Date.now()}`).then(r => r.json());
+    const existingFiles = new Set();
+    state.points.forEach(p => (p.photos || []).forEach(ph => { if (ph.file) existingFiles.add(ph.file); }));
+
+    let newPointCount = 0, newPhotoCount = 0;
+    seed.forEach(sp => {
+      const newPhotos = (sp.photos || []).filter(ph => ph.file && !existingFiles.has(ph.file));
+      if (newPhotos.length === 0) return;
+      newPhotos.forEach(ph => existingFiles.add(ph.file));
+      const clone = JSON.parse(JSON.stringify(sp));
+      clone.id = Store.nextId(state);
+      clone.photos = newPhotos;
+      state.points.push(clone);
+      newPointCount++;
+      newPhotoCount += newPhotos.length;
+    });
+
+    if (newPointCount > 0) {
+      Store.save(state);
+      render();
+      alert(`已同步 ${newPointCount} 個新點位、共 ${newPhotoCount} 張新照片！`);
+    } else {
+      alert("目前沒有新照片可以同步。");
+    }
+  } catch (err) {
+    console.error("同步失敗:", err);
+    alert("同步失敗，請確認網路連線後再試一次。");
+  } finally {
+    syncBtn.disabled = false;
+    syncBtn.textContent = original;
+  }
+}
+
 function splitPhotoToNewPoint(photo, sourcePoint) {
   const idx = sourcePoint.photos.indexOf(photo);
   if (idx === -1) return;
@@ -326,6 +367,7 @@ function bindGlobalEvents() {
     document.getElementById("fileInput").click();
   });
   document.getElementById("fileInput").addEventListener("change", handleNewFiles);
+  document.getElementById("syncSeedBtn").addEventListener("click", syncNewSeedPoints);
 
   document.getElementById("exportBackup").addEventListener("click", () => Store.exportJSON(state));
   document.getElementById("importBtn").addEventListener("click", () => document.getElementById("importInput").click());

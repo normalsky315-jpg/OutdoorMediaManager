@@ -732,5 +732,34 @@
     "visibility": "",
     "competitor": "",
     "notes": ""
+  },
+  {
+    "id": "P24",
+    "name": "候選點 24",
+    "status": "pending",
+    "tier": "",
+    "lat": 22.6227,
+    "lng": 120.368217,
+    "visitDate": "2026/07/22",
+    "photos": [
+      {
+        "file": "IMG_4566.jpg",
+        "keep": true
+      }
+    ],
+    "area": "",
+    "facing": "",
+    "address": "",
+    "contact": "",
+    "phone": "",
+    "rent": "",
+    "deposit": "",
+    "size": "",
+    "material": "",
+    "lighting": "",
+    "direction": "",
+    "visibility": "",
+    "competitor": "",
+    "notes": ""
   }
 ]
